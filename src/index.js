@@ -113,9 +113,18 @@ class Game extends React.Component {
 		const stepNumber = this.state.stepNumber;
 		const current = history[isAscendingOrder ? stepNumber : history.length - stepNumber - 1];
 		const winner = getWinner(current.squares);
-		const status = winner
-			? `Winner: ${winner}`
-			: `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
+		let status;
+
+		if (stepNumber === 9) {
+			status = 'Level the score!'
+		} else {
+			if (winner) {
+				status = `Winner: ${winner}`;
+			} else {
+				status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
+			}
+		}
+
 		const moves = history.map((step, move) => {
 			const desc = step.squares.toString() !== Array(9).fill(null).toString()
 				? `Go to move #${isAscendingOrder ? move : history.length - move - 1} ( ${history[move].coordinate.column}, ${history[move].coordinate.row} )`
