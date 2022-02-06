@@ -55,25 +55,36 @@ class Game extends React.Component {
 			},],
 			stepNumber: 0,
 			xIsNext: true,
+			isAscendingOrder: true,
 		}
 	}
 
 	handleClick(i) {
+		const isAscendingOrder = this.state.isAscendingOrder;
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
-		const current = history[history.length - 1];
+		const current = history[isAscendingOrder ? history.length - 1 : 0];
 		const squares = current.squares.slice();
 		if (calculateWinner(squares) || squares[i]) return;
 		squares[i] = this.state.xIsNext
 			? 'X'
 			: 'O';
 		this.setState({
-			history: history.concat([{
-				squares: squares,
-				coordinate: {
-					column: Math.floor(i / 3) + 1,
-					row: (i % 3) + 1,
-				},
-			}]),
+			history: isAscendingOrder
+				? history.concat([{
+					squares: squares,
+					coordinate: {
+						column: Math.floor(i / 3) + 1,
+						row: (i % 3) + 1,
+					},
+				}])
+				: [{
+					squares: squares,
+					coordinate: {
+						column: Math.floor(i / 3) + 1,
+						row: (i % 3) + 1,
+					},
+				}].concat(history)
+			,
 			stepNumber: history.length,
 			xIsNext: !this.state.xIsNext,
 		})
@@ -87,21 +98,31 @@ class Game extends React.Component {
 		})
 	}
 
+	switchOrder() {
+		this.setState({
+			history: this.state.history.reverse(),
+			isAscendingOrder: !this.state.isAscendingOrder,
+		})
+	}
+
 	render() {
+		const isAscendingOrder = this.state.isAscendingOrder;
 		const history = this.state.history;
-		const current = history[this.state.stepNumber];
+		const stepNumber = this.state.stepNumber;
+		const current = history[isAscendingOrder ? stepNumber : history.length - stepNumber - 1];
 		const winner = calculateWinner(current.squares);
 		const status = winner
 			? `Winner: ${winner}`
 			: `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
 		const moves = history.map((step, move) => {
-			const desc = move
-				? `Go to move #${move} ( ${history[move].coordinate.column}, ${history[move].coordinate.row} )`
+			const desc = step.squares.toString() !== Array(9).fill(null).toString()
+				? `Go to move #${isAscendingOrder ? move : history.length - move - 1} ( ${history[move].coordinate.column}, ${history[move].coordinate.row} )`
 				: 'Go to game start';
 			return (
 				<li key={move}>
-					<button style={{color: this.state.stepNumber === move ? 'blue' : 'black'}}
-					        onClick={() => this.jumpTo(move)}>{desc}</button>
+					<button
+						style={{color: isAscendingOrder ? stepNumber === move ? 'blue' : 'black' : history.length - stepNumber - 1 === move ? 'blue' : 'black'}}
+						onClick={() => this.jumpTo(move)}>{desc}</button>
 				</li>
 			);
 		})
@@ -113,6 +134,8 @@ class Game extends React.Component {
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
+					<button onClick={() => this.switchOrder()}>Current
+						order: {isAscendingOrder ? 'Ascending Order' : 'Descending Order'}</button>
 					<ol>{moves}</ol>
 				</div>
 			</div>
