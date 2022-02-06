@@ -7,6 +7,7 @@ function Square(props) {
 		<button
 			className="square"
 			onClick={() => props.onClick()}
+			style={{color: props.isWinnerPiece ? 'red' : 'black'}}
 		>
 			{props.value}
 		</button>
@@ -19,6 +20,7 @@ function Board(props) {
 			<Square
 				value={props.squares[i]}
 				onClick={() => props.onClick(i)}
+				isWinnerPiece={props.winnerPieces.includes(i)}
 			/>
 		);
 	}
@@ -64,7 +66,7 @@ class Game extends React.Component {
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		const current = history[isAscendingOrder ? history.length - 1 : 0];
 		const squares = current.squares.slice();
-		if (calculateWinner(squares) || squares[i]) return;
+		if (getWinner(squares) || squares[i]) return;
 		squares[i] = this.state.xIsNext
 			? 'X'
 			: 'O';
@@ -110,7 +112,7 @@ class Game extends React.Component {
 		const history = this.state.history;
 		const stepNumber = this.state.stepNumber;
 		const current = history[isAscendingOrder ? stepNumber : history.length - stepNumber - 1];
-		const winner = calculateWinner(current.squares);
+		const winner = getWinner(current.squares);
 		const status = winner
 			? `Winner: ${winner}`
 			: `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
@@ -130,7 +132,8 @@ class Game extends React.Component {
 		return (
 			<div className="game">
 				<div className="game-board">
-					<Board squares={current.squares} onClick={(i) => this.handleClick(i)}/>
+					<Board squares={current.squares} onClick={(i) => this.handleClick(i)}
+					       winnerPieces={getWinnerPieces(current.squares)}/>
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
@@ -164,8 +167,17 @@ function calculateWinner(squares) {
 
 	for (const [a, b, c] of lines) {
 		if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-			return squares[a];
+			return [a, b, c];
 		}
 	}
 	return null;
+}
+
+function getWinnerPieces(squares) {
+	return calculateWinner(squares) || [, ,];
+}
+
+function getWinner(squares) {
+	const preData = calculateWinner(squares);
+	return preData && squares[preData[0]];
 }
