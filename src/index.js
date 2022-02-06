@@ -25,21 +25,19 @@ function Board(props) {
 
 	return (
 		<div>
-			<div className="board-row">
-				{renderSquare(0)}
-				{renderSquare(1)}
-				{renderSquare(2)}
-			</div>
-			<div className="board-row">
-				{renderSquare(3)}
-				{renderSquare(4)}
-				{renderSquare(5)}
-			</div>
-			<div className="board-row">
-				{renderSquare(6)}
-				{renderSquare(7)}
-				{renderSquare(8)}
-			</div>
+			{
+				Array(3).fill(null).map((valueOuter, indexOuter) => {
+					return (
+						<div className="board-row">
+							{
+								Array(3).fill(null).map((valueInner, indexInner) => {
+									return renderSquare(indexOuter * 3 + indexInner);
+								})
+							}
+						</div>
+					);
+				})
+			}
 		</div>
 	);
 }
