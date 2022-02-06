@@ -115,11 +115,11 @@ class Game extends React.Component {
 		const winner = getWinner(current.squares);
 		let status;
 
-		if (stepNumber === 9) {
-			status = 'Level the score!'
+		if (winner) {
+			status = `Winner: ${winner}`;
 		} else {
-			if (winner) {
-				status = `Winner: ${winner}`;
+			if (stepNumber === 9) {
+				status = 'Level the score!';
 			} else {
 				status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
 			}
@@ -130,10 +130,10 @@ class Game extends React.Component {
 				? `Go to move #${isAscendingOrder ? move : history.length - move - 1} ( ${history[move].coordinate.column}, ${history[move].coordinate.row} )`
 				: 'Go to game start';
 			return (
-				<li key={move}>
+				<li key={isAscendingOrder ? move : history.length - move - 1}>
 					<button
 						style={{color: isAscendingOrder ? stepNumber === move ? 'blue' : 'black' : history.length - stepNumber - 1 === move ? 'blue' : 'black'}}
-						onClick={() => this.jumpTo(move)}>{desc}</button>
+						onClick={() => this.jumpTo(isAscendingOrder ? move : history.length - move - 1)}>{desc}</button>
 				</li>
 			);
 		})
@@ -145,7 +145,7 @@ class Game extends React.Component {
 					       winnerPieces={getWinnerPieces(current.squares)}/>
 				</div>
 				<div className="game-info">
-					<div>{status}</div>
+					<div style={{color: status.includes('Next') ? 'black' : 'red'}}>{status}</div>
 					<button onClick={() => this.switchOrder()}>Current
 						order: {isAscendingOrder ? 'Ascending Order' : 'Descending Order'}</button>
 					<ol>{moves}</ol>
